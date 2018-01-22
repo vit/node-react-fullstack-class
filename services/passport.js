@@ -20,25 +20,25 @@ passport.use(new GoogleStrategy({
     clientID: keys.googleClientID,
     clientSecret: keys.googleClientSecret,
     callbackURL: "http://lib.comsep.ru:9090/auth/google/callback"
-  }, (token, tokenSecret, profile, done) => {
-        User.findOne({googleId: profile.id})
-            .then(existingUser => {
-                if (existingUser) {
-                    //console.log('!!! existing user !!!');
-                    done(null, existingUser);
-                } else {
-                    new User({googleId: profile.id})
-                        .save()
-                        .then(user => done(null, user))
-                }
-            })
-//      console.log(`access token: ${token}`);
-//      console.log(`refresh token: ${tokenSecret}`);
-//      console.log('profile: ', profile);
-//      console.log(profile);
-    //  User.findOrCreate({ googleId: profile.id }, function (err, user) {
-    //    return done(err, user);
-    //  });
+  }, async (token, tokenSecret, profile, done) => {
+        // User.findOne({googleId: profile.id})
+        //     .then(existingUser => {
+        //         if (existingUser) {
+        //             //console.log('!!! existing user !!!');
+        //             done(null, existingUser);
+        //         } else {
+        //             new User({googleId: profile.id})
+        //                 .save()
+        //                 .then(user => done(null, user))
+        //         }
+        //     })
+
+        const existingUser = await User.findOne({googleId: profile.id});
+        if (existingUser) {
+            return done(null, existingUser);
+        }
+        const user = await new User({googleId: profile.id}).save();
+        done(null, user);
   }
 ));
 
